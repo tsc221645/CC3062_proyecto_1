@@ -6,6 +6,8 @@ const MAX_LEN = 9
 export default function useCalculator () {
   const [display, setDisplay] = useState('0')
   const [stack, setStack] = useState<string[]>([])
+  const [capyMood, setCapyMood] = useState<'neutral' | 'happy' | 'sad'>('neutral')
+
 
   const reset = () => {
     setDisplay('0')
@@ -13,9 +15,15 @@ export default function useCalculator () {
   }
 
   const handleInput = (input: string) => {
-    if (display === 'ERROR') return reset()
-    if (input === 'C') return reset()
-
+    if (display === 'ERROR') {
+      setCapyMood('neutral')
+      return reset()
+    }
+    if (input === 'C') {
+      setCapyMood('neutral')
+      return reset()
+    }
+  
     if (input === '=') {
       try {
         const expr = [...stack, display].join('')
@@ -23,15 +31,19 @@ export default function useCalculator () {
         const str = result.toString()
         if (result < 0 || result > MAX || str.length > MAX_LEN) {
           setDisplay('ERROR')
+          setCapyMood('sad')
         } else {
           setDisplay(str.slice(0, MAX_LEN))
           setStack([])
+          setCapyMood('happy')
         }
       } catch {
         setDisplay('ERROR')
+        setCapyMood('sad')
       }
       return
     }
+    setCapyMood('neutral')
 
     if (['+', '-', '*', '/', '%'].includes(input)) {
       setStack([...stack, display, input])
@@ -54,5 +66,5 @@ export default function useCalculator () {
     if (display.length < MAX_LEN) setDisplay(display + input)
   }
 
-  return { display, handleInput }
+  return { display, handleInput, capyMood}
 }
